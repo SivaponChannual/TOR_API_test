@@ -1,0 +1,49 @@
+{
+  "source": "data.go.th",
+  "dataset": "egp-contact-2568 (ข้อมูลโครงการจัดซื้อจัดจ้างจากระบบ e-GP ปีงบประมาณ 2568)",
+  "query": "เช่า",
+  "limit": 1,
+  "totalMatchingProjects": 6894,
+  "retrievedCount": 1,
+  "fetchedAt": "2026-09-06T13:50:16.841Z",
+  "tors": [
+    {
+      "projectId": "67089336878",
+      "projectName": "ประกวดราคาเช่าเครื่องคอมพิวเตอร์กราฟิก Mac Pro ( เช่า 3 ปี) ด้วยวิธีประกวดราคาอิเล็กทรอนิกส์ (e-bidding)",
+      "projectType": "เช่า",
+      "fiscalYear": 2568,
+      "agencyName": "องค์การกระจายเสียงและแพร่ภาพสาธารณะแห่งประเทศไทย(ส.ส.ท.)",
+      "subAgencyName": "องค์การกระจายเสียงและแพร่ภาพสาธารณะแห่งประเทศไทย(ส.ส.ท.)",
+      "province": "กรุงเทพมหานคร",
+      "district": "ตลาดบางเขน",
+      "procurementMethod": "ประกวดราคาอิเล็กทรอนิกส์ (e-bidding)",
+      "announceDate": "5 ก.ย. 67",
+      "transactionDate": "31 ต.ค. 67",
+      "budgetTHB": 3840000,
+      "medianPriceTHB": 3591027,
+      "agreedPriceTHB": 3258792,
+      "winnerName": "บริษัท ทูยู คอร์ปอเรชั่น จำกัด",
+      "winnerTaxId": "0105564128418",
+      "contractNo": "TPBS-Legal(R)010/2567",
+      "contractSignDate": "31 ต.ค. 67",
+      "contractEndDate": "27 ก.พ. 71",
+      "projectStatus": "ระหว่างดำเนินการ",
+      "egpProjectUrl": "https://process3.gprocurement.go.th/egp2procmainWeb/jsp/procsearch.sch?project_id=67089336878",
+      "attachedDocument": {
+        "fileName": "67089336878_TOR.pdf",
+        "storagePath": "./data.go.th/tors/documents/67089336878_TOR.pdf",
+        "sizeBytes": 106224,
+        "originalEntryName": "Attach_TOR_1.pdf",
+        "packageName": "67089336878_28082567.zip",
+        "pages": 2,
+        "documentType": "SCANNED_PAPER_PDF",
+        "snippet": "Scanned document (physical ink signatures). OCR required for full text extraction.",
+        "specs": {
+          "deviceType": "Personal Computer (PC)"
+        }
+      },
+      "source": "data.go.th (egp-contact-2568)",
+      "fetchedAt": "2026-09-06T13:50:16.841Z"
+    }
+  ]
+}

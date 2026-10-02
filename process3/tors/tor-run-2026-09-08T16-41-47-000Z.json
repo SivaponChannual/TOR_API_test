@@ -1,0 +1,44 @@
+{
+  "source": "process3.gprocurement.go.th",
+  "feedUrl": "https://process3.gprocurement.go.th/EPROCRssFeedWeb/egpannouncerss.xml",
+  "deptId": "national",
+  "query": null,
+  "limit": 1,
+  "fetchedAt": "2026-09-08T16:41:47.001Z",
+  "totalTorsExtracted": 1,
+  "summary": [
+    {
+      "code": "B0",
+      "name": "Draft TOR (ร่างประกาศและร่างเอกสารประกวดราคา)",
+      "status": "SUCCESS",
+      "itemsFound": 20
+    },
+    {
+      "code": "D0",
+      "name": "Invitation to Bid (ประกาศเชิญชวน)",
+      "status": "SUCCESS",
+      "itemsFound": 20
+    },
+    {
+      "code": "15",
+      "name": "Reference Price (ราคากลาง)",
+      "status": "ERROR",
+      "itemsFound": 0
+    }
+  ],
+  "tors": [
+    {
+      "id": "B0-1788885686675-0",
+      "announceType": "B0",
+      "announceTypeName": "Draft TOR",
+      "title": "ประกวดราคาซื้อหินใหญ่คละ ขนาด 15-30 ซม. และอื่นๆ จำนวน 3 รายการ สำหรับงานซ่อมแซมท่อรับน้ำป่า คันพนังลำห้วยกระติบ โครงการส่งน้ำและบำรุงรักษาห้วยหลวง ตำบลโคกสะอาด อำเภอเมืองอุดรธานี จังหวัดอุดรธานี ด้วยวิธีประกวดราคาอิเล็กทรอนิกส์ (e-bidding)",
+      "link": "https://process5.gprocurement.go.th/egp-upload-service/v1/downloadFileTest?fileId=b4d4dcd9ac3b4b0da09dcc381180ac36",
+      "pubDate": "2026-09-08",
+      "description": "69099218130, ประกวดราคาอิเล็กทรอนิกส์ (e-bidding), ร่างเอกสารประกวดราคา (e-Bidding) และร่างเอกสารซื้อหรือจ้างด้วยวิธีสอบราคา",
+      "deptId": "national",
+      "attachedDocument": null,
+      "source": "process3.gprocurement.go.th (Live Daily RSS)",
+      "fetchedAt": "2026-09-08T16:41:27.055Z"
+    }
+  ]
+}

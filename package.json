@@ -1,0 +1,42 @@
+{
+  "name": "gipdp-api-test",
+  "version": "1.0.0",
+  "description": "Real live government procurement API & RSS connectivity test suite for GIPDP",
+  "type": "module",
+  "scripts": {
+    "test:process3": "node process3/test-process3.mjs",
+    "test:datago": "node data.go.th/test-datago.mjs",
+    "test:rss": "node scripts/test-api.mjs",
+    "test:connectivity": "node scripts/test-apis.mjs",
+    "test:mock": "node scripts/test-apis.mjs --mock",
+    "test:all": "npm run test:process3 && npm run test:datago",
+    "test": "npm run test:all"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "thailand-procurement",
+    "egp",
+    "data-go-th",
+    "tor-downloader",
+    "pdf-parser",
+    "thai-encoding",
+    "gipdp"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SivaponChannual/TOR_API_test.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SivaponChannual/TOR_API_test/issues"
+  },
+  "homepage": "https://github.com/SivaponChannual/TOR_API_test#readme",
+  "dependencies": {
+    "adm-zip": "^0.6.0",
+    "axios": "^1.7.9",
+    "fast-xml-parser": "^4.5.3",
+    "pdf-parse": "^2.4.5"
+  }
+}

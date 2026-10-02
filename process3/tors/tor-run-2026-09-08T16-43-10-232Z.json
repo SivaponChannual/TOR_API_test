@@ -1,0 +1,54 @@
+{
+  "source": "process3.gprocurement.go.th",
+  "feedUrl": "https://process3.gprocurement.go.th/EPROCRssFeedWeb/egpannouncerss.xml",
+  "deptId": "national",
+  "query": "คอมพิวเตอร์",
+  "limit": 1,
+  "fetchedAt": "2026-09-08T16:43:10.232Z",
+  "totalTorsExtracted": 1,
+  "summary": [
+    {
+      "code": "B0",
+      "name": "Draft TOR (ร่างประกาศและร่างเอกสารประกวดราคา)",
+      "status": "SUCCESS",
+      "itemsFound": 0
+    },
+    {
+      "code": "D0",
+      "name": "Invitation to Bid (ประกาศเชิญชวน)",
+      "status": "SUCCESS",
+      "itemsFound": 0
+    },
+    {
+      "code": "15",
+      "name": "Reference Price (ราคากลาง)",
+      "status": "ERROR",
+      "itemsFound": 0
+    }
+  ],
+  "tors": [
+    {
+      "id": "68039469567",
+      "announceType": "B0",
+      "announceTypeName": "Draft TOR / e-Bidding Procurement",
+      "title": "ประกวดราคาซื้อโครงการจัดซื้ออุปกรณ์เครือข่ายของหน่วยบริการภาษีอากร กรมสรรพากร เพื่อทดแทนของเดิมและเพิ่มประสิทธิภาพ ด้วยวิธีประกวดราคาอิเล็กทรอนิกส์ (e-bidding)",
+      "link": "https://process3.gprocurement.go.th/egp2procmainWeb/jsp/procsearch.sch?project_id=68039469567",
+      "pubDate": "13 พ.ค. 68",
+      "description": "โครงการจัดซื้อจัดจ้าง e-GP งบประมาณ ฿89,845,000, หน่วยงาน: กรมสรรพากร",
+      "deptId": "กรมสรรพากร",
+      "attachedDocument": {
+        "fileName": "68039469567_TOR.pdf",
+        "storagePath": "./process3/tors/documents/68039469567_TOR.pdf",
+        "sizeBytes": 5476857,
+        "originalEntryName": "68039469567_TOR.pdf",
+        "packageName": null,
+        "pages": 43,
+        "documentType": "SCANNED_PAPER_PDF",
+        "snippet": "Scanned document (physical ink signatures). OCR required for full text extraction.",
+        "specs": null
+      },
+      "source": "process3.gprocurement.go.th (Live e-GP Procurement Backend)",
+      "fetchedAt": "2026-09-08T16:43:10.232Z"
+    }
+  ]
+}
