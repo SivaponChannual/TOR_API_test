@@ -304,32 +304,6 @@ The primary output is written to `latest-tors.json` in each respective directory
 
 ---
 
-## Git & GitHub Setup Guide
-
-When you are ready to link and push this project to your GitHub repository:
-
-```bash
-# 1. Initialize git (if not already done)
-git init
-
-# 2. Stage all files (respecting .gitignore)
-git add .
-
-# 3. Create initial commit
-git commit -m "feat: automated Thailand procurement TOR downloader and parser pipeline"
-
-# 4. Set the main branch
-git branch -M main
-
-# 5. Link your GitHub remote repository
-git remote add origin https://github.com/SivaponChannual/TOR_API_test.git
-
-# 6. Push to GitHub
-git push -u origin main
-```
-
----
-
 ## Security & Privacy Guardrails
 
 - **No Sensitive Credentials**: Government open data and e-GP endpoints used in this repository are public open-government interfaces; no private API secrets are required.
