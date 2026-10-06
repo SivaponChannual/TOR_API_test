@@ -121,7 +121,9 @@ export async function resolveAndDownloadEgpTorDocument({ projectId, directUrl, d
 
   let zipId = null;
   let packageName = null;
-  let downloadUrl = directUrl || null;
+  // If directUrl points to the template viewer service (which is just the 1-page announcement notice, not the TOR package),
+  // do NOT use it as downloadUrl; instead, look up the full announcement zip package.
+  let downloadUrl = (directUrl && !directUrl.includes('egp-template-service')) ? directUrl : null;
 
   if (!downloadUrl) {
     // 1. Check official announcement & TOR document package

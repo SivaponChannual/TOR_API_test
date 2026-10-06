@@ -26,3 +26,9 @@ pnpm-debug.log*
 tmp/
 *.tmp
 *.temp
+
+# Downloaded TOR documents and extracted JSON outputs
+*.pdf
+**/tors/documents/
+**/tors/*.json
+**/tors/**/*.json

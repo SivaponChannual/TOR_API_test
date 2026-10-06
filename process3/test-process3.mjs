@@ -61,6 +61,7 @@ function parseCliArgs() {
   let deptId = ''; // Default all departments
   let limit = 1; // Strict 1-by-1 default for test-size storage
   let query = 'คอมพิวเตอร์'; // Default IT search keyword
+  let type = ''; // Specific announcement type (e.g. D0, B0, 15)
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
@@ -76,10 +77,14 @@ function parseCliArgs() {
       query = arg.split('=')[1];
     } else if ((arg === '--q' || arg === '-q') && i + 1 < args.length) {
       query = args[++i];
+    } else if (arg.startsWith('--type=')) {
+      type = arg.split('=')[1];
+    } else if ((arg === '--type' || arg === '-t') && i + 1 < args.length) {
+      type = args[++i];
     }
   }
 
-  return { deptId, limit, query };
+  return { deptId, limit, query, type };
 }
 
 function decodeThaiXml(buffer) {
@@ -115,12 +120,13 @@ function cleanSnippet(str, maxLen = 120) {
 // ==========================================
 
 async function main() {
-  const { deptId, limit, query } = parseCliArgs();
+  const { deptId, limit, query, type } = parseCliArgs();
 
   console.log('='.repeat(76));
   console.log(' GIPDP - process3 Automated 1-by-1 TOR Downloader & Parser');
   console.log('='.repeat(76));
   console.log(`Endpoint URL    : ${BASE_URL}`);
+  console.log(`Announcement Typ: ${type || '(All Configured Types)'}`);
   console.log(`Department Code : ${deptId || '(All National Departments)'}`);
   console.log(`Query Filter    : "${query}"`);
   console.log(`Download Limit  : ${limit} project(s) at a time (Test Size Guardrail)`);
@@ -139,10 +145,15 @@ async function main() {
   const allExtractedTors = [];
   const summary = [];
 
+  // Filter announcement types if requested
+  const targetTypes = type
+    ? ANNOUNCEMENT_TYPES.filter((t) => t.code.toUpperCase() === type.toUpperCase())
+    : ANNOUNCEMENT_TYPES;
+
   // Step 1: Query Live RSS feed across announcement types
-  for (let i = 0; i < ANNOUNCEMENT_TYPES.length; i++) {
-    const annType = ANNOUNCEMENT_TYPES[i];
-    console.log(`\n[${i + 1}/${ANNOUNCEMENT_TYPES.length}] Checking Live RSS: ${annType.code} - ${annType.name}`);
+  for (let i = 0; i < targetTypes.length; i++) {
+    const annType = targetTypes[i];
+    console.log(`\n[${i + 1}/${targetTypes.length}] Checking Live RSS: ${annType.code} - ${annType.name}`);
 
     const requestUrl = new URL(BASE_URL);
     if (deptId) {
@@ -196,6 +207,7 @@ async function main() {
         for (let j = 0; j < Math.min(limit, itemsCount); j++) {
           if (allExtractedTors.length >= limit) break;
 
+          const item = filteredItems[j];
           const projIdMatch = String(item.description || '').match(/\b(\d{11})\b/);
           const torId = projIdMatch ? projIdMatch[1] : (item.link?.match(/fileId=([a-f0-9]+)/i)?.[1] || `${annType.code}-${Date.now()}-${j}`);
           const title = item.title ? String(item.title).trim() : 'No Title';
