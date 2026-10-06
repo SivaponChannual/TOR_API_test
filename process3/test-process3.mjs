@@ -204,7 +204,8 @@ async function main() {
         console.log(`  -> RSS: 0 items for ${annType.code}${query ? ` matching "${query}"` : ''} (Off-hours / weekend).`);
       } else {
         const remainingTotal = limit - allExtractedTors.length;
-        const remainingTypes = targetTypes.length - i;
+        const responsiveTypes = targetTypes.filter((t) => t.code !== '15');
+        const remainingTypes = Math.max(1, responsiveTypes.length - i);
         const targetForThisType = type ? remainingTotal : Math.ceil(remainingTotal / remainingTypes);
 
         console.log(`  -> RSS: ${itemsCount} matching item(s). Targeting up to ${targetForThisType} for ${annType.code}...`);
