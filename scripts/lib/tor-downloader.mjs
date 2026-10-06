@@ -121,9 +121,9 @@ export async function resolveAndDownloadEgpTorDocument({ projectId, directUrl, d
 
   let zipId = null;
   let packageName = null;
-  // If directUrl points to the template viewer service (which is just the 1-page announcement notice, not the TOR package),
-  // do NOT use it as downloadUrl; instead, look up the full announcement zip package.
-  let downloadUrl = (directUrl && !directUrl.includes('egp-template-service')) ? directUrl : null;
+  // Only treat directUrl as an authoritative download URL if it points to the upload/download service or a direct PDF
+  const isDirectFile = directUrl && (directUrl.includes('downloadFileTest') || directUrl.toLowerCase().endsWith('.pdf'));
+  let downloadUrl = isDirectFile ? directUrl : null;
 
   if (!downloadUrl) {
     // 1. Check official announcement & TOR document package
@@ -167,95 +167,103 @@ export async function resolveAndDownloadEgpTorDocument({ projectId, directUrl, d
   }
 
   // 3. Download the actual binary archive from e-GP upload service
-  try {
-    const dlResponse = await axios.get(downloadUrl, {
-      headers: EGP_SERVICE_HEADERS,
-      responseType: 'arraybuffer',
-      timeout: 30000,
-      maxContentLength: maxSizeBytes,
-    });
+  let lastError = null;
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      const dlResponse = await axios.get(downloadUrl, {
+        headers: EGP_SERVICE_HEADERS,
+        responseType: 'arraybuffer',
+        timeout: 30000,
+        maxContentLength: maxSizeBytes,
+      });
 
-    const rawBuffer = Buffer.from(dlResponse.data);
+      const rawBuffer = Buffer.from(dlResponse.data);
 
-    // If direct PDF
-    if (rawBuffer.subarray(0, 4).toString('ascii').startsWith('%PDF')) {
-      await fs.writeFile(targetPath, rawBuffer);
+      // If direct PDF
+      if (rawBuffer.subarray(0, 4).toString('ascii').startsWith('%PDF')) {
+        await fs.writeFile(targetPath, rawBuffer);
+        return {
+          success: true,
+          filePath: targetPath,
+          sizeBytes: rawBuffer.length,
+          originalFileName: fileName,
+          packageName,
+        };
+      }
+
+      // If ZIP archive
+      const zip = new AdmZip(rawBuffer);
+      const pdfEntries = zip.getEntries().filter((e) => !e.isDirectory && e.entryName.toLowerCase().endsWith('.pdf'));
+
+      if (pdfEntries.length === 0) {
+        return {
+          success: false,
+          error: `No PDF files found inside e-GP archive "${packageName}".`,
+        };
+      }
+
+      // Rank entries to pick the best TOR document
+      // Priority:
+      // 1. Explicit TOR filenames (e.g. Attach_TOR_1.pdf, TOR.pdf)
+      // 2. Official Announcement documents (e.g. annoudoc*.pdf, doc*.pdf, bidding noltice.pdf)
+      // 3. Price build / median price document (e.g. pB0.pdf)
+      // 4. Any other PDF
+      pdfEntries.sort((a, b) => {
+        const nameA = a.entryName.toLowerCase();
+        const nameB = b.entryName.toLowerCase();
+
+        const getScore = (name) => {
+          if (name.includes('tor')) return 100;
+          if (name.includes('annou')) return 80;
+          if (name.includes('bidding') || name.includes('noltice')) return 70;
+          if (name.includes('doc_')) return 60;
+          if (name.includes('pb0')) return 50;
+          return 10;
+        };
+
+        return getScore(nameB) - getScore(nameA);
+      });
+
+      const bestEntry = pdfEntries[0];
+      const pdfData = bestEntry.getData();
+
+      await fs.writeFile(targetPath, pdfData);
+
+      // Look for companion text document if the best entry might be scanned
+      let companionText = '';
+      const textEntry = pdfEntries.find((e) => e.entryName.toLowerCase().includes('annou') || e.entryName.toLowerCase().includes('pb0'));
+      if (textEntry && textEntry !== bestEntry) {
+        try {
+          const textBuf = textEntry.getData();
+          const p = new PDFParse({ data: new Uint8Array(textBuf) });
+          const res = await p.getText();
+          companionText = (res?.text || '').trim();
+        } catch {
+          // ignore companion text errors
+        }
+      }
+
       return {
         success: true,
         filePath: targetPath,
-        sizeBytes: rawBuffer.length,
-        originalFileName: fileName,
+        sizeBytes: pdfData.length,
+        originalFileName: bestEntry.entryName,
         packageName,
+        companionText,
+        totalArchiveFiles: pdfEntries.length,
       };
-    }
-
-    // If ZIP archive
-    const zip = new AdmZip(rawBuffer);
-    const pdfEntries = zip.getEntries().filter((e) => !e.isDirectory && e.entryName.toLowerCase().endsWith('.pdf'));
-
-    if (pdfEntries.length === 0) {
-      return {
-        success: false,
-        error: `No PDF files found inside e-GP archive "${packageName}".`,
-      };
-    }
-
-    // Rank entries to pick the best TOR document
-    // Priority:
-    // 1. Explicit TOR filenames (e.g. Attach_TOR_1.pdf, TOR.pdf)
-    // 2. Official Announcement documents (e.g. annoudoc*.pdf, doc*.pdf, bidding noltice.pdf)
-    // 3. Price build / median price document (e.g. pB0.pdf)
-    // 4. Any other PDF
-    pdfEntries.sort((a, b) => {
-      const nameA = a.entryName.toLowerCase();
-      const nameB = b.entryName.toLowerCase();
-
-      const getScore = (name) => {
-        if (name.includes('tor')) return 100;
-        if (name.includes('annou')) return 80;
-        if (name.includes('bidding') || name.includes('noltice')) return 70;
-        if (name.includes('doc_')) return 60;
-        if (name.includes('pb0')) return 50;
-        return 10;
-      };
-
-      return getScore(nameB) - getScore(nameA);
-    });
-
-    const bestEntry = pdfEntries[0];
-    const pdfData = bestEntry.getData();
-
-    await fs.writeFile(targetPath, pdfData);
-
-    // Look for companion text document if the best entry might be scanned
-    let companionText = '';
-    const textEntry = pdfEntries.find((e) => e.entryName.toLowerCase().includes('annou') || e.entryName.toLowerCase().includes('pb0'));
-    if (textEntry && textEntry !== bestEntry) {
-      try {
-        const textBuf = textEntry.getData();
-        const p = new PDFParse({ data: new Uint8Array(textBuf) });
-        const res = await p.getText();
-        companionText = (res?.text || '').trim();
-      } catch {
-        // ignore companion text errors
+    } catch (err) {
+      lastError = err;
+      if (attempt < 2) {
+        await new Promise((r) => setTimeout(r, 1200));
       }
     }
-
-    return {
-      success: true,
-      filePath: targetPath,
-      sizeBytes: pdfData.length,
-      originalFileName: bestEntry.entryName,
-      packageName,
-      companionText,
-      totalArchiveFiles: pdfEntries.length,
-    };
-  } catch (err) {
-    return {
-      success: false,
-      error: `Failed to download or extract e-GP attachment for ${projectId}: ${err.message}`,
-    };
   }
+
+  return {
+    success: false,
+    error: `Failed to download or extract e-GP attachment for ${projectId}: ${lastError?.message}`,
+  };
 }
 
 /**

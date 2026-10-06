@@ -41,11 +41,12 @@ const DOCUMENTS_DIR = path.join(TORS_DIR, 'documents');
 const ANNOUNCEMENT_TYPES = [
   { code: 'B0', name: 'Draft TOR (ร่างประกาศและร่างเอกสารประกวดราคา)' },
   { code: 'D0', name: 'Invitation to Bid (ประกาศเชิญชวน)' },
+  { code: 'D1', name: 'Revised Invitation / Amendment (แก้ไขประกาศเชิญชวน)' },
   { code: '15', name: 'Reference Price (ราคากลาง)' },
 ];
 
 const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
-const REQUEST_TIMEOUT_MS = 15000;
+const REQUEST_TIMEOUT_MS = 6000;
 const RATE_LIMIT_DELAY_MS = 1000;
 
 // ==========================================
@@ -202,10 +203,16 @@ async function main() {
       if (itemsCount === 0) {
         console.log(`  -> RSS: 0 items for ${annType.code}${query ? ` matching "${query}"` : ''} (Off-hours / weekend).`);
       } else {
-        console.log(`  -> RSS: ${itemsCount} matching item(s). Processing top ${Math.min(limit, itemsCount)}...`);
+        const remainingTotal = limit - allExtractedTors.length;
+        const remainingTypes = targetTypes.length - i;
+        const targetForThisType = type ? remainingTotal : Math.ceil(remainingTotal / remainingTypes);
 
-        for (let j = 0; j < Math.min(limit, itemsCount); j++) {
+        console.log(`  -> RSS: ${itemsCount} matching item(s). Targeting up to ${targetForThisType} for ${annType.code}...`);
+
+        let extractedForThisType = 0;
+        for (let j = 0; j < itemsCount; j++) {
           if (allExtractedTors.length >= limit) break;
+          if (extractedForThisType >= targetForThisType && !type) break;
 
           const item = filteredItems[j];
           const projIdMatch = String(item.description || '').match(/\b(\d{11})\b/);
@@ -243,6 +250,12 @@ async function main() {
             }
           }
 
+          if (!documentInfo) {
+            console.log(`     [SKIP] No document available, trying next candidate...`);
+            continue;
+          }
+
+          extractedForThisType++;
           allExtractedTors.push({
             id: String(torId),
             announceType: annType.code,
@@ -252,7 +265,7 @@ async function main() {
             pubDate: item.pubDate || '',
             description: item.description ? String(item.description).trim() : '',
             deptId: deptId || 'national',
-            attachedDocument: documentInfo ? {
+            attachedDocument: {
               fileName: expectedPdfName,
               storagePath: path.relative(process.cwd(), targetPdfPath),
               sizeBytes: downloadRes?.sizeBytes || (fsSync.existsSync(targetPdfPath) ? fsSync.statSync(targetPdfPath).size : null),
@@ -262,10 +275,12 @@ async function main() {
               documentType: documentInfo.documentType,
               snippet: documentInfo.snippet,
               specs: documentInfo.extractedSpecs,
-            } : null,
+            },
             source: 'process3.gprocurement.go.th (Live Daily RSS)',
             fetchedAt: new Date().toISOString(),
           });
+
+          await delay(RATE_LIMIT_DELAY_MS);
         }
       }
     } catch (err) {
