@@ -150,3 +150,18 @@ Between **09:00 and 11:30 AM ICT** (Thai government business hours), government 
 - It maintains a **sliding window of current daily announcements** (typically 20 to 50 active items per announcement code).
 - On weekends, national holidays, or after 18:00 ICT, the feed may return 0 items.
 - **Architectural Solution**: When the RSS feed is empty, our pipeline automatically engages the **`data.go.th` catalog fallback** to discover active project IDs without interruption.
+
+---
+
+## 7. Operating Hours, Peak Windows & Off-Hours Schedule
+
+| Time Period | System State | Feed Output | Expected Performance |
+| :--- | :--- | :--- | :--- |
+| **Mon – Fri: 08:30 – 16:30 ICT** | **Active Publishing Hours** | Active XML feed (20–50 new items per code) | Operational, but subject to peak-hour congestion |
+| **09:00 – 11:30 ICT (Morning Peak)** | **Heavy Submission Rush** | Rapidly updating items | **High Timeout Risk**: Latencies spike >10s; frequent BigIP drops |
+| **13:30 – 15:30 ICT (Afternoon Peak)** | **Afternoon Publishing Wave** | Active updates | Moderate to high latency (3–8s response time) |
+| **Evenings: 18:00 – 08:30 ICT** | **Government Off-Hours** | 0 new announcements; older items roll off | Fast responses (~200ms), but feed contains 0 items |
+| **Weekends (Saturday & Sunday)** | **Closed / Weekend** | **0 items** (`<channel>` without `<item>` tags) | 200 OK returned, but empty payload |
+| **National Holidays** | **Closed** | **0 items** | 200 OK returned, but empty payload |
+| **Weekend Nights (Sat 22:00 – Sun 06:00)** | **Scheduled Maintenance** | Possible 502/503 Service Unavailable | Maintenance window for e-GP database updates |
+

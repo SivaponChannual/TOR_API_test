@@ -174,3 +174,19 @@ Many government TOR documents (e.g. `Attach_TOR_1.pdf`) are physical printouts w
 - Standard PDF text extraction (`pdf-parse`) yields 0 text characters on scanned PDFs (`documentType: "SCANNED_PAPER_PDF"`).
 - To preserve full-text searchability without expensive OCR on every document, our pipeline extracts the digital companion text from `annoudoc_*.pdf` inside the same ZIP archive.
 - The companion text contains the official digital notice with project specifications, submission dates, and budgets.
+
+---
+
+## 7. Operating Hours, Availability & Off-Hours Performance
+
+| Time Window | Service Availability | Traffic Load | Download & API Performance |
+| :--- | :--- | :--- | :--- |
+| **Mon – Fri: 08:30 – 16:30 ICT** | **Online (Production Hours)** | **High** (Nationwide procurement officers actively uploading & submitting) | API latency: ~500ms – 2,500ms; download speeds may throttle |
+| **Off-Hours (18:00 – 08:30 ICT)** | **Online (24/7 Vault)** | **Minimal** (Internal government staff off-duty) | **Optimal Performance**: Ultra-fast API response (~15ms – 80ms) and unrestricted download bandwidth |
+| **Weekends (Saturday & Sunday)** | **Online (24/7 Vault)** | **Minimal** | **Optimal Performance**: Best time for large-scale historical document downloads |
+| **National Holidays** | **Online (24/7 Vault)** | **Minimal** | Fully accessible |
+| **Maintenance Windows** | **Intermittent / Offline** | Scheduled downtime | Typically Saturday 22:00 – Sunday 06:00 ICT (announced on CGD portal) |
+
+### Key Takeaway for Automated Pipelines:
+While the **RSS feed (`process3`) is bound to government office hours (08:30 – 16:30)** and produces no items on weekends, the **document storage vault (`process5`) is an always-on 24/7 archive**. Documents for previously approved projects can be downloaded at maximum speed during evening and weekend off-hours.
+

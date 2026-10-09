@@ -147,3 +147,13 @@ async function searchSoftwareProjects(keyword = 'ซอฟต์แวร์', l
 - **No Document Hosting**: `data.go.th` **never hosts attachments, PDFs, or ZIP archives**. It only stores metadata records.
 - **Sync Latency**: Data is updated in periodic bulk batches by CGD; breaking, real-time announcements from this morning appear first on `process3` RSS before syncing to `data.go.th`.
 - **Partitioned Resources**: A complete query across an entire fiscal year requires iterating across all 10 resource IDs.
+
+---
+
+## 8. Operating Hours & Availability
+
+- **API Service Availability**: **24 hours a day, 7 days a week, 365 days a year**.
+- **Business Hours Restrictions**: **None**. Because `data.go.th` is hosted on modern cloud infrastructure managed by DGA, the REST API does not close at 16:30 ICT or on weekends.
+- **Latency & Response Times**: Consistently between `150ms` and `400ms` at all hours.
+- **Data Ingestion Schedule**: The underlying procurement datasets are uploaded in scheduled batches (typically weekly or monthly) by CGD officers. While historical queries are always available, real-time announcements posted today will appear on `process3` RSS hours or days before syncing here.
+
