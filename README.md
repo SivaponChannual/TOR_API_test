@@ -12,6 +12,15 @@ An automated, resilient data extraction and document analysis pipeline for Thail
 
 The pipeline operates with test-size guardrails (configurable 1-by-1 processing), automatically resolving live procurement projects, retrieving authentic government TOR archives (ZIP/PDF), downloading documents with strict safety caps, detecting scanned paper vs. digital text PDFs, and parsing structured technical specifications (e.g., IT hardware, cloud resources, SLAs, and ISO standards).
 
+## Technical Documentation & Host Guides
+
+Detailed technical specifications, schemas, announcement taxonomies, and operational schedules are available in the [`docs/`](./docs/README.md) directory:
+
+- 📘 **[Architecture & Data Flow](./docs/DATA_FLOW_ARCHITECTURE.md)**: Multi-host system design, sequence flow, and operating schedules.
+- 📗 **[data.go.th Reference Guide](./docs/DATA_GO_TH.md)**: CKAN REST API endpoints, 2568 partitions (Parts 1–10), and complete schema dictionary.
+- 📙 **[process3.gprocurement.go.th Reference Guide](./docs/PROCESS3_GPROCUREMENT.md)**: Daily XML RSS feeds, all announcement codes (`B0`, `D0`, `D1`, `15`, `P0`, `W0`), encoding, and peak hours.
+- 📕 **[process5.gprocurement.go.th Reference Guide](./docs/PROCESS5_GPROCUREMENT.md)**: Microservices, ZIP archive internal anatomy, WAF headers, companion text, and the daily 00:00–04:00 batch window.
+
 ---
 
 ## Architecture & Data Flow

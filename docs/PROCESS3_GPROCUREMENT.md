@@ -160,8 +160,15 @@ Between **09:00 and 11:30 AM ICT** (Thai government business hours), government 
 | **Mon – Fri: 08:30 – 16:30 ICT** | **Active Publishing Hours** | Active XML feed (20–50 new items per code) | Operational, but subject to peak-hour congestion |
 | **09:00 – 11:30 ICT (Morning Peak)** | **Heavy Submission Rush** | Rapidly updating items | **High Timeout Risk**: Latencies spike >10s; frequent BigIP drops |
 | **13:30 – 15:30 ICT (Afternoon Peak)** | **Afternoon Publishing Wave** | Active updates | Moderate to high latency (3–8s response time) |
-| **Evenings: 18:00 – 08:30 ICT** | **Government Off-Hours** | 0 new announcements; older items roll off | Fast responses (~200ms), but feed contains 0 items |
+| **Evening Off-Hours: 18:00 – 23:59 ICT** | **Government Off-Hours** | 0 new announcements; older items roll off | Fast responses (~200ms), but feed contains 0 items |
+| **Daily Batch Maintenance: 00:00 – 04:00 ICT**| **⚠️ Core Batch Processing** | 0 items; connections may reset or 502/503 | Server performs internal daily consolidation & backups |
+| **Early Morning Off-Hours: 04:00 – 08:30 ICT**| **Pre-Office Hours** | Feed resets for the new day | Fast response (~150ms), ready for morning announcements |
 | **Weekends (Saturday & Sunday)** | **Closed / Weekend** | **0 items** (`<channel>` without `<item>` tags) | 200 OK returned, but empty payload |
 | **National Holidays** | **Closed** | **0 items** | 200 OK returned, but empty payload |
 | **Weekend Nights (Sat 22:00 – Sun 06:00)** | **Scheduled Maintenance** | Possible 502/503 Service Unavailable | Maintenance window for e-GP database updates |
+
+### Recommended Fetch Strategy for process3:
+- For **live real-time scraping**, query during business hours (**09:00 – 16:30 ICT**) with timeouts configured to at least `10,000ms`.
+- Outside business hours, on weekends, or during the **00:00 – 04:00 ICT maintenance window**, use the **`data.go.th` catalog fallback** to avoid returning empty results.
+
 
