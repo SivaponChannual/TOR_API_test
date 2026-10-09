@@ -165,11 +165,11 @@ sequenceDiagram
 
 ## 4. Inside the Government ZIP Package
 
-When e-GP packages an announcement, it bundles all related procurement documentation together:
+When a government agency publishes an announcement to e-GP, the backend bundles all related procurement documentation, legal notices, and bidding templates into a single `.zip` package:
 
 ```text
 68069160377_19062568_1.zip (Example: SAP ERP Software Tender)
-├── Attach_TOR_1.pdf         <-- [TARGET] Full TOR Scope of Work (34 pages)
+├── Attach_TOR_1.pdf         <-- [TARGET] Full TOR Scope of Work
 ├── annoudoc_5030100000.pdf   <-- Official announcement letter
 ├── doc_5030100000.pdf        <-- Terms & bidding conditions
 ├── bidding noltice.pdf       <-- Bidding notice summary
@@ -180,7 +180,30 @@ When e-GP packages an announcement, it bundles all related procurement documenta
 └── action_plan.xlsx          <-- Work delivery schedule template
 ```
 
-Our document ranker automatically isolates `Attach_TOR_1.pdf` and ignores the generic bond templates.
+### Detailed Breakdown of Each File:
+
+| File Name in ZIP | Official Thai Designation | Purpose & Contents | Pipeline Processing Action |
+| :--- | :--- | :--- | :---: |
+| **`Attach_TOR_1.pdf`** *(or `TOR.pdf`)* | **ร่างขอบเขตของงาน / เอกสารกำหนดขอบเขตรายละเอียดของงาน (TOR)** | **The Primary Technical Specification Document.** Contains the complete Scope of Work, technical architecture, hardware/software functional requirements, delivery milestones, SLAs, warranties, and vendor qualifications. | **🎯 Primary Target**<br/>Extracted and stored as `<projectId>_TOR.pdf`. Parsed for technical specifications. |
+| **`annoudoc_*.pdf`** | **หนังสือประกาศประกวดราคา / ประกาศจัดซื้อจัดจ้าง** | **The Official Legal Announcement Letter.** Signed by the head of the government agency (e.g., Director-General, Governor, or Permanent Secretary). Contains legal authority clauses, budget summary, reference price, submission dates, and contact details. | **📄 Companion Text**<br/>Used for text extraction fallback if `Attach_TOR_1.pdf` is a scanned image with physical ink signatures. |
+| **`doc_*.pdf`** | **เอกสารประกวดราคาอิเล็กทรอนิกส์ (e-bidding)** | **The Legal Bidding Rules & Conditions.** Formal legal terms governing the tender process, bidder qualification criteria, blacklisting checks, joint venture rules, bid submission guidelines, and disqualification criteria. | **Secondary Reference**<br/>Inspected if `Attach_TOR_1.pdf` is missing from the package. |
+| **`bidding noltice.pdf`** | **เอกสารสรุปสาระสำคัญของประกาศประกวดราคา** | **Public Bidding Notice Summary.** A 1–2 page executive notice detailing publication dates, public hearing/comment periods, bidding submission hours, and evaluation committee contact channels. | **Metadata Reference**<br/>Contains clean timeline dates and submission deadlines. |
+| **`pB0.pdf`** | **ตารางแสดงวงเงินงบประมาณที่ได้รับจัดสรรและราคากลาง (บก.01)** | **Median / Reference Price Calculation Sheet.** Government Form Bor Kor 01 detailing how the procurement committee derived the reference price (median market pricing, CGD benchmark tables, or past contract prices), along with committee member signatures. | **Budget Verification**<br/>Used to verify reference price against budget in Announcement Type `15`. |
+| **`quotation.pdf`** | **ใบเสนอราคาทางอิเล็กทรอนิกส์** | **Standard Vendor Pricing Form Template.** Blank tender submission sheet that competing vendors must fill out with their proposed pricing, price validity duration, and discount terms. | ❌ **Ignored**<br/>Blank legal form template. |
+| **`Bid Bond.pdf`** | **หนังสือค้ำประกันซอง (หลักประกันการเสนอราคา)** | **Bid Security Bank Guarantee Template.** Legal form template (typically 5% of estimated budget) required by government procurement regulations to ensure vendors do not withdraw submitted bids. | ❌ **Ignored**<br/>Blank legal form template. |
+| **`Performance Bond.pdf`** | **หนังสือค้ำประกันสัญญา (หลักประกันการปฏิบัติตามสัญญา)** | **Contract Performance Guarantee Template.** Bank guarantee template (usually 5%–10% of contract value) that the winning contractor must provide upon signing the formal contract. | ❌ **Ignored**<br/>Blank legal form template. |
+| **`Advance Payment Bond.pdf`** | **หนังสือค้ำประกันเงินล่วงหน้า** | **Advance Payment Guarantee Template.** Bank security form required if the contract includes advance disbursement (typically 10%–15%) before milestone delivery. | ❌ **Ignored**<br/>Blank legal form template. |
+| **`action_plan.xlsx`** | **แผนการดำเนินงานและงวดงาน** | **Project Delivery & Payment Milestone Template.** Excel spreadsheet detailing delivery phases, installment percentages, testing timelines, and acceptance criteria. | ❌ **Ignored**<br/>Auxiliary spreadsheet file. |
+
+### How Our Ranking Engine Filters Them:
+The automated unpacker ([`scripts/lib/tor-downloader.mjs`](file:///Users/sivaponchannual/Documents/KU/y3sm1/SoftwareProcess/API_test/scripts/lib/tor-downloader.mjs)) scores each file inside the archive:
+- Files with **`tor`** receive **100 points** (`Attach_TOR_1.pdf`).
+- Files with **`annou`** receive **80 points** (`annoudoc_*.pdf`).
+- Files with **`bidding`** receive **70 points**.
+- Files with **`doc_`** receive **60 points**.
+- Generic templates (`Bid Bond`, `quotation`, `Performance Bond`) receive only **10 points** and are discarded.
+
+This ensures that only the actual, authoritative Terms of Reference document is extracted into `process3/tors/documents/<projectId>_TOR.pdf`.
 
 ---
 
