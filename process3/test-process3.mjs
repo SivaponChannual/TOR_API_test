@@ -43,10 +43,12 @@ const ANNOUNCEMENT_TYPES = [
   { code: 'D0', name: 'Invitation to Bid (ประกาศเชิญชวน)' },
   { code: 'D1', name: 'Revised Invitation / Amendment (แก้ไขประกาศเชิญชวน)' },
   { code: '15', name: 'Reference Price (ราคากลาง)' },
+  { code: 'P0', name: 'Procurement Plan (แผนการจัดซื้อจัดจ้าง)' },
+  { code: 'W0', name: 'Cancellation (ยกเลิกประกาศ)' },
 ];
 
 const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
-const REQUEST_TIMEOUT_MS = 6000;
+const REQUEST_TIMEOUT_MS = 10000;
 const RATE_LIMIT_DELAY_MS = 1000;
 
 // ==========================================
@@ -310,13 +312,33 @@ async function main() {
     console.log('-'.repeat(76));
 
     try {
-      const catalogUrl = `https://data.go.th/api/3/action/datastore_search?resource_id=e4eaa1b4-eb1a-4534-b227-988ee25b898d&limit=15&q=${encodeURIComponent(query)}`;
-      const catRes = await axios.get(catalogUrl, {
-        headers: { 'User-Agent': USER_AGENT },
-        timeout: 35000,
-      });
+      const resourceIds = [
+        'e4eaa1b4-eb1a-4534-b227-988ee25b898d',
+        '9ae119c4-73b9-4bb6-9b71-7b355269bc00',
+        '1c1a90af-2d47-4bfb-ae87-e479b2582257'
+      ];
 
-      const candidates = catRes.data?.result?.records || [];
+      const candidates = [];
+      const seenIds = new Set();
+
+      for (const rId of resourceIds) {
+        if (candidates.length >= Math.max(limit * 3, 25)) break;
+        const catalogUrl = `https://data.go.th/api/3/action/datastore_search?resource_id=${rId}&limit=30&q=${encodeURIComponent(query)}`;
+        const catRes = await axios.get(catalogUrl, {
+          headers: { 'User-Agent': USER_AGENT },
+          timeout: 35000,
+        }).catch(() => null);
+
+        const recs = catRes?.data?.result?.records || [];
+        for (const r of recs) {
+          const id = String(r['รหัสโครงการ'] || '').trim();
+          if (id && !seenIds.has(id)) {
+            seenIds.add(id);
+            candidates.push(r);
+          }
+        }
+      }
+
       console.log(`  -> Found ${candidates.length} active e-GP procurement candidates for "${query}".`);
 
       for (const cand of candidates) {
@@ -362,11 +384,26 @@ async function main() {
           console.log(`     Specs: ${JSON.stringify(documentInfo.extractedSpecs || 'None')}`);
         }
 
+        // Dynamically classify announcement type based on title and package
+        let resolvedType = 'D0';
+        let resolvedTypeName = 'Invitation to Bid (ประกาศเชิญชวน)';
+        const titleStr = String(cand['ชื่อโครงการ'] || '');
+        if (titleStr.includes('ร่าง') || titleStr.includes('วิจารณ์')) {
+          resolvedType = 'B0';
+          resolvedTypeName = 'Draft TOR (ร่างประกาศและร่างเอกสารประกวดราคา)';
+        } else if (titleStr.includes('แก้ไข') || titleStr.includes('เปลี่ยนแปลง')) {
+          resolvedType = 'D1';
+          resolvedTypeName = 'Revised Invitation / Amendment (แก้ไขประกาศเชิญชวน)';
+        } else if (downloadRes?.packageName?.includes('pricebuild') || titleStr.includes('ราคากลาง')) {
+          resolvedType = '15';
+          resolvedTypeName = 'Reference Price (ราคากลาง)';
+        }
+
         allExtractedTors.push({
           id: projectId,
-          announceType: 'B0',
-          announceTypeName: 'Draft TOR / e-Bidding Procurement',
-          title: String(cand['ชื่อโครงการ'] || '').trim(),
+          announceType: resolvedType,
+          announceTypeName: resolvedTypeName,
+          title: titleStr.trim(),
           link: `https://process3.gprocurement.go.th/egp2procmainWeb/jsp/procsearch.sch?project_id=${projectId}`,
           pubDate: cand['วันที่ประกาศ'] || new Date().toISOString(),
           description: `โครงการจัดซื้อจัดจ้าง e-GP งบประมาณ ฿${formatNumber(cand['งบประมาณ(บาท)'])}, หน่วยงาน: ${cand['ชื่อหน่วยงาน']}`,
