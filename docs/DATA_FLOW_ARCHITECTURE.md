@@ -215,8 +215,15 @@ Understanding when each system is open, when it updates, and how it behaves duri
 | **API Availability** | **24/7 / 365 Days** | **24/7** (Server is live, but feed content is time-bound) | **24/7 / 365 Days** (Fastest at night & weekends) |
 | **Active Business Hours** | N/A (Cloud service) | **Mon – Fri: 08:30 – 16:30 ICT** (Official Thai Gov Hours) | **Mon – Fri: 08:30 – 16:30 ICT** (High user load) |
 | **Peak Load Windows** | Consistent response (~200ms) | **09:00 – 11:30 ICT** & **13:30 – 15:30 ICT** *(Frequent timeouts >10s)* | 09:00 – 16:00 ICT *(Moderate internal agency traffic)* |
-| **Off-Hours Behavior** | ✅ Fully operational; queries return normally | ⚠️ **Returns 0 items** (No new announcements posted) | ✅ Fully operational; fastest response times (~15–50ms) |
+| **Daily Batch Maintenance** | Operational (Unaffected) | Unaffected (0 items at night anyway) | **⚠️ 00:00 – 04:00 ICT Daily**: Core batch sync & DB backups. APIs may return 502/503 or maintenance splash |
+| **Off-Hours Behavior** | ✅ Fully operational; queries return normally | ⚠️ **Returns 0 items** (No new announcements posted) | ✅ Fully operational outside midnight batch; fastest speeds (~15–50ms) |
 | **Weekends & Holidays** | ✅ Fully operational; historical data always queryable | ⚠️ **Returns 0 items** (Feeds are empty on Sat/Sun) | ✅ Fully operational; all past attachments accessible |
-| **Scheduled Maintenance** | Rare; managed by DGA cloud | Periodically on weekend nights (Sat 22:00 – Sun 06:00) | Scheduled on weekend nights during system upgrades |
+| **Major Maintenance** | Rare; managed by DGA cloud | Periodically on weekend nights (Sat 22:00 – Sun 06:00) | Scheduled on weekend nights during system upgrades |
 | **Update / Publishing Cycle**| Periodic bulk batch syncs (weekly/monthly) | **Real-time instant stream** (Posts as officers submit) | Immediate (Files accessible as soon as approved) |
+
+### Recommended Ingestion Cron Schedule
+To avoid daytime office congestion (09:00 – 11:30 ICT) and the midnight maintenance window (00:00 – 04:00 ICT), configure automated pipelines for:
+- **Evening Slot**: **20:00 – 23:30 ICT** (Post-office hours, before midnight batch)
+- **Morning Slot**: **05:30 – 08:00 ICT** (Post-midnight batch, before morning office rush)
+
 

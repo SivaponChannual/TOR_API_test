@@ -182,11 +182,18 @@ Many government TOR documents (e.g. `Attach_TOR_1.pdf`) are physical printouts w
 | Time Window | Service Availability | Traffic Load | Download & API Performance |
 | :--- | :--- | :--- | :--- |
 | **Mon – Fri: 08:30 – 16:30 ICT** | **Online (Production Hours)** | **High** (Nationwide procurement officers actively uploading & submitting) | API latency: ~500ms – 2,500ms; download speeds may throttle |
-| **Off-Hours (18:00 – 08:30 ICT)** | **Online (24/7 Vault)** | **Minimal** (Internal government staff off-duty) | **Optimal Performance**: Ultra-fast API response (~15ms – 80ms) and unrestricted download bandwidth |
-| **Weekends (Saturday & Sunday)** | **Online (24/7 Vault)** | **Minimal** | **Optimal Performance**: Best time for large-scale historical document downloads |
-| **National Holidays** | **Online (24/7 Vault)** | **Minimal** | Fully accessible |
-| **Maintenance Windows** | **Intermittent / Offline** | Scheduled downtime | Typically Saturday 22:00 – Sunday 06:00 ICT (announced on CGD portal) |
+| **Evening Off-Hours (18:00 – 23:59 ICT)** | **Online (24/7 Vault)** | **Minimal** (Internal government staff off-duty) | **Optimal Performance**: Ultra-fast API response (~15ms – 80ms) and unrestricted download bandwidth |
+| **Daily Batch Maintenance (00:00 – 04:00 ICT)** | **⚠️ Restricted / Intermittent** | **System Batch Processing** (Daily e-Bank Guarantee sync, database re-indexing & backups) | May return `502 Bad Gateway`, `503 Service Unavailable`, or connection resets. Portals display maintenance splash: *"ปิดปรับปรุงระบบประจำวัน เพื่อประมวลผลข้อมูล (00:00 - 04:00 น.)"* |
+| **Early Morning Off-Hours (04:00 – 08:30 ICT)** | **Online (24/7 Vault)** | **Minimal** (Batch jobs finished, staff not yet arrived) | **Optimal Performance**: Cleanest throughput (~15ms – 50ms) before morning office rush |
+| **Weekends (Saturday & Sunday)** | **Online (24/7 Vault)** | **Minimal** | **Optimal Performance**: Ideal for large-scale historical document downloads |
+| **Weekend Deep Maintenance** | **Offline** | Scheduled major migrations | Typically Saturday 22:00 – Sunday 06:00 ICT (announced on CGD portal) |
 
-### Key Takeaway for Automated Pipelines:
-While the **RSS feed (`process3`) is bound to government office hours (08:30 – 16:30)** and produces no items on weekends, the **document storage vault (`process5`) is an always-on 24/7 archive**. Documents for previously approved projects can be downloaded at maximum speed during evening and weekend off-hours.
+### Recommended Automated Pipeline Schedule
+To avoid daytime office congestion (09:00 – 11:30 ICT) and the midnight maintenance window (00:00 – 04:00 ICT), schedule automated cron jobs in these two optimal windows:
+
+| Recommended Window | Time (ICT) | Why It Is Optimal |
+| :--- | :---: | :--- |
+| **Window 1: Late Evening** | **20:00 – 23:30** | Government officers have logged off; daily batch has not yet begun. Stable and fast (~30–80ms). |
+| **Window 2: Early Morning** | **05:30 – 08:00** | The 00:00 – 04:00 batch window has completed; government morning rush has not started. Lowest latency (~15–50ms). |
+
 
