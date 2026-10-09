@@ -16,10 +16,10 @@ The pipeline operates with test-size guardrails (configurable 1-by-1 processing)
 
 Detailed technical specifications, schemas, announcement taxonomies, and operational schedules are available in the [`docs/`](./docs/README.md) directory:
 
-- 📘 **[Architecture & Data Flow](./docs/DATA_FLOW_ARCHITECTURE.md)**: Multi-host system design, sequence flow, and operating schedules.
-- 📗 **[data.go.th Reference Guide](./docs/DATA_GO_TH.md)**: CKAN REST API endpoints, 2568 partitions (Parts 1–10), and complete schema dictionary.
-- 📙 **[process3.gprocurement.go.th Reference Guide](./docs/PROCESS3_GPROCUREMENT.md)**: Daily XML RSS feeds, all announcement codes (`B0`, `D0`, `D1`, `15`, `P0`, `W0`), encoding, and peak hours.
-- 📕 **[process5.gprocurement.go.th Reference Guide](./docs/PROCESS5_GPROCUREMENT.md)**: Microservices, ZIP archive internal anatomy, WAF headers, companion text, and the daily 00:00–04:00 batch window.
+- 📘 **[Architecture & Data Flow](./docs/data_flow_architecture.md)**: Multi-host system design, sequence flow, and operating schedules.
+- 📗 **[data.go.th Reference Guide](./docs/data_go_th.md)**: CKAN REST API endpoints, 2568 partitions (Parts 1–10), and complete schema dictionary.
+- 📙 **[process3.gprocurement.go.th Reference Guide](./docs/process3_gprocurement.md)**: Daily XML RSS feeds, all announcement codes (`B0`, `D0`, `D1`, `15`, `P0`, `W0`), encoding, and peak hours.
+- 📕 **[process5.gprocurement.go.th Reference Guide](./docs/process5_gprocurement.md)**: Microservices, ZIP archive internal anatomy, WAF headers, companion text, and the daily 00:00–04:00 batch window.
 
 ---
 
